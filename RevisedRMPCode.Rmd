@@ -17,11 +17,11 @@ library(tidyverse)
 Uploading the CSV for Rate My Professor Data and Daily Nexus Data
 
 ```{r, echo = FALSE}
-rmpdata <- read_csv("/Users/laurenceliao/Downloads/teacher_ratings.csv")
+rmpdata <- read_csv("teacher_ratings.csv")
 nrow(rmpdata)
 ```
 ```{r}
-coursegradesdata <- read_csv("/Users/laurenceliao/Downloads/courseGrades.csv")
+coursegradesdata <- read_csv("courseGrades.csv")
 nrow(coursegradesdata)
 ```
 
