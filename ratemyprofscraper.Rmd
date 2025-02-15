@@ -1,0 +1,173 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-11-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(reticulate)
+py_install("Selenium")
+#py_install("RateMyProfessorAPI")
+
+```
+
+
+You can also embed plots, for example:
+
+```{python}
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+import time
+import ratemyprofessor
+import pandas as pd
+```
+
+```{python}
+path = "/Users/husni/Downloads/chromedriver-mac-arm64 2/chromedriver"
+web = "https://www.ratemyprofessors.com/search/professors/1077?q=*"
+service = Service(executable_path = path)
+driver = webdriver.Chrome(service = service)
+driver.get(web)
+options = Options()
+options.headless = True
+
+#btn = WebDriverWait(driver, 10).until(
+ #   EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'PaginationButton')]"))
+#)
+
+```
+
+
+
+```{python}
+
+df = pd.DataFrame(columns=['Name', 'Department', 'Quality Rating', 'Number of Ratings', 'Would Take Again', 'Difficulty'])
+```
+
+```{python}
+
+while True:
+    try:
+        
+        # Find and click the "Show More" button
+        btn = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'PaginationButton')]"))
+        )
+        btn.click()
+        time.sleep(2)  # Allow time for new results to load
+
+    except NoSuchElementException:
+        print("No more 'Show More' button found.")
+        break
+
+
+
+
+```
+
+
+```{python}
+teachers_names = driver.find_elements(By.CLASS_NAME, "CardName__StyledCardName-sc-1gyrgim-0")
+
+# Extract the text from each element and store it in a list
+teacher_names = [teacher.text for teacher in teachers_names]
+
+teachers_dep = driver.find_elements(By.CLASS_NAME, "CardSchool__Department-sc-19lmz2k-0")
+
+# Extract the text from each element and store it in a list
+teacher_dep = [teacher.text for teacher in teachers_dep]
+
+teachers_rating = driver.find_elements(By.CLASS_NAME, "CardNumRating__CardNumRatingNumber-sc-17t4b9u-2")
+
+# Extract the text from each element and store it in a list
+teacher_rating = [teacher.text for teacher in teachers_rating]
+
+teachers_rating_num = driver.find_elements(By.CLASS_NAME, "CardNumRating__CardNumRatingCount-sc-17t4b9u-3")
+
+# Extract the text from each element and store it in a list
+teacher_rating_num = [teacher.text for teacher in teachers_rating_num]
+
+teachers_take_again = driver.find_elements(By.CLASS_NAME, "CardFeedback__CardFeedbackNumber-lq6nix-2")
+
+# Extract the text from each element and store it in a list
+teacher_take_again = [teacher.text for teacher in teachers_take_again]
+
+teachers_difficulty = driver.find_elements(By.CLASS_NAME, "CardFeedback__CardFeedbackNumber-lq6nix-2")
+
+# Extract the text from each element and store it in a list
+teacher_difficulty = [teacher.text for teacher in teachers_difficulty]
+
+
+# Print the extracted text
+#print(teacher_names)
+#print(teacher_dep)
+#print(teacher_rating)
+#print(teacher_rating_num)
+teacher_take_again = teacher_take_again[0::2]
+teacher_difficulty = teacher_difficulty[1::2]
+new_df = pd.DataFrame({
+    'Name': teacher_names,
+    'Department': teacher_dep,
+    'Quality Rating': teacher_rating,
+    'Number of Ratings': teacher_rating_num,
+    'Would Take Again': teacher_take_again,
+    'Difficulty': teacher_difficulty
+})
+
+
+df = pd.concat([df, new_df], ignore_index=True)
+df.to_csv("teacher_ratings.csv", index=False)
+```
+
+teachers_names = driver.find_elements(By.CLASS_NAME, "CardName__StyledCardName-sc-1gyrgim-0")
+        professor_count = len(teachers_names)
+        
+        # Print the live counter
+        print(f"Professors collected so far: {professor_count}")
+        
+while True:
+    try:
+        btn = driver.find_element(By.XPATH, "//Button[@class='Buttons__Button-sc-19xdot-1 PaginationButton__StyledPaginationButton-txi1dr-1 glImpo']")
+        btn.click()
+        # Add a short wait to let the page load after each click
+        time.sleep(1)
+        
+    except NoSuchElementException:
+        print("No more 'Show More' button found.")
+        break
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#ratemyprofessor.get_professor_by_schools_and_name("University of California Santa Barbara", "Dawn Holmes") 
+professor = ratemyprofessor.get_professor_by_school_and_name(
+    ratemyprofessor.get_school_by_name("Case Western Reserve University"), "Connamacher")
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
